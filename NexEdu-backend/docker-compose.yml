@@ -1,0 +1,73 @@
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexedu-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexedu
+      POSTGRES_PASSWORD: nexedu123
+      POSTGRES_DB: nexedu_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexedu-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexedu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API NexEdu
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexedu-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexedu-network
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  # Dockerfile para desenvolvimento (opcional)
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: nexedu-api-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexedu-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+
+networks:
+  nexedu-network:
+    driver: bridge

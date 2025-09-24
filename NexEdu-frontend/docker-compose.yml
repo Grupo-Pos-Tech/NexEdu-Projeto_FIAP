@@ -1,0 +1,40 @@
+
+services:
+  # Servidor de desenvolvimento React
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true
+    networks:
+      - app-network
+
+  # Build de produção
+  front-prod:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    profiles:
+      - production
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  node_modules:

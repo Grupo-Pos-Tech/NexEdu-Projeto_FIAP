@@ -1,0 +1,137 @@
+###
+# NexEdu API - Arquivo de Testes
+# 
+# Este arquivo contém requisições HTTP para testar todos os endpoints da API NexEdu.
+# Use a extensão REST Client do VS Code para executar as requisições.
+#
+# Como usar:
+# 1. Instale a extensão REST Client no VS Code
+# 2. Inicie o servidor com: npm run dev
+# 3. Clique em "Send Request" acima de cada requisição
+#
+# Sequência recomendada de testes:
+# 1. Teste básico → 2. Criar posts → 3. Listar → 4. Buscar → 5. Atualizar → 6. Deletar
+###
+
+### 1. TESTE BÁSICO DA API
+# Verifica se a API está funcionando corretamente
+# Endpoint: GET /
+# Retorna: Mensagem de confirmação
+GET http://localhost:3000/
+
+###
+
+### 2. CRIAR NOVO POST
+# Cria um post educacional sobre Node.js
+# Endpoint: POST /posts
+# Body: JSON com Title, Content e Author obrigatórios
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+  "Title": "Introdução ao Node.js",
+  "Content": "Node.js é uma plataforma de desenvolvimento que permite executar JavaScript no servidor. É amplamente utilizado para criar APIs e aplicações web escaláveis.",
+  "Author": "João Silva"
+}
+
+###
+
+### 3. LISTAR TODOS OS POSTS
+# Retorna todos os posts cadastrados no sistema
+# Endpoint: GET /posts
+# Retorna: Array com todos os posts
+GET http://localhost:3000/posts
+
+###
+
+### 4. BUSCAR POST POR ID
+# Busca um post específico pelo seu ID
+# Endpoint: GET /posts/:id
+# Nota: Substitua o "1" por um ID válido retornado pela listagem
+# Retorna: Post específico ou erro 404
+GET http://localhost:3000/posts/1
+
+###
+
+### 5. BUSCAR POSTS POR TERMO
+# Busca posts que contenham o termo no título ou conteúdo (case-insensitive)
+# Endpoint: GET /posts/search?q=termo
+# Parâmetro: q (query string) - termo de busca
+# Retorna: Array de posts que correspondem à busca
+GET http://localhost:3000/posts/search?q=Node
+
+###
+
+### 6. ATUALIZAR POST EXISTENTE
+# Atualiza um post existente com novos dados
+# Endpoint: PUT /posts/:id
+# Nota: Substitua o "1" por um ID válido
+# Body: JSON com os campos a serem atualizados
+PUT http://localhost:3000/posts/1
+Content-Type: application/json
+
+{
+  "Title": "Introdução ao Node.js - Versão Atualizada",
+  "Content": "Node.js é uma plataforma de desenvolvimento que permite executar JavaScript no servidor. Conteúdo atualizado com mais detalhes sobre suas funcionalidades e casos de uso.",
+  "Author": "João Silva"
+}
+
+###
+
+### 7. DELETAR POST
+# Remove um post específico do sistema
+# Endpoint: DELETE /posts/:id
+# Nota: Substitua o "1" por um ID válido
+# CUIDADO: Esta operação é irreversível!
+# Retorna: Mensagem de confirmação
+DELETE http://localhost:3000/posts/1
+
+###
+
+### 8. CRIAR POST SOBRE PRISMA
+# Exemplo adicional de criação de post com conteúdo técnico
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+  "Title": "Banco de Dados com Prisma",
+  "Content": "Prisma é um ORM (Object-Relational Mapping) moderno que facilita o trabalho com bancos de dados, oferecendo type safety e uma API intuitiva para operações de CRUD.",
+  "Author": "Maria Santos"
+}
+
+###
+
+### 9. CRIAR POST SOBRE TYPESCRIPT
+# Mais um exemplo para enriquecer a base de dados de teste
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+  "Title": "TypeScript para Iniciantes",
+  "Content": "TypeScript é um superset do JavaScript que adiciona tipagem estática, tornando o código mais robusto, fácil de manter e menos propenso a erros em tempo de execução.",
+  "Author": "Pedro Costa"
+}
+
+###
+
+### 10. TESTE DE BUSCA CASE-INSENSITIVE
+# Testa a busca sem distinção entre maiúsculas e minúsculas
+# Busca por "prisma" deve encontrar posts com "Prisma"
+GET http://localhost:3000/posts/search?q=prisma
+
+###
+
+### 11. BUSCA POR CONTEÚDO
+# Testa busca no conteúdo dos posts
+GET http://localhost:3000/posts/search?q=JavaScript
+
+###
+# Fim dos testes - NexEdu API
+# 
+# Dicas importantes:
+# - Sempre teste o endpoint básico primeiro
+# - Crie alguns posts antes de testar busca e atualização
+# - Use IDs válidos nos endpoints que requerem parâmetros
+# - A busca funciona tanto no título quanto no conteúdo
+# - Todas as operações retornam JSON
+###
