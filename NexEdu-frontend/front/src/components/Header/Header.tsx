@@ -17,7 +17,7 @@ const Header: React.FC = () => {
     return(
         <HeaderContainer>
             <HeaderTtitle>
-                Lista dos conteúdos
+                Lista de Conteúdos
             </HeaderTtitle>
         </HeaderContainer>
     );

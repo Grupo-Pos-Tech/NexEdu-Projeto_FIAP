@@ -14,7 +14,7 @@ background-color : #407febff;
 const Footer:React.FC = () =>{
     return(
         <FooterContainer>
-            <p>Direitor autorais 2025</p>
+            <p>Criado pela equipe NexEdu.</p>
         </FooterContainer>
     );
 };
