@@ -1,4 +1,10 @@
 import type { Post } from "../components/types/Post";
+import {
+  calculateReadTime,
+  generateDefaultTags,
+  generateExcerpt,
+  getCurrentDateString,
+} from "../utils/postUtils";
 import { apiService } from "./api";
 
 export interface CreatePostData {
@@ -28,10 +34,10 @@ export class PostService {
         title: post.Title,
         content: post.Content,
         author: post.Author,
-        excerpt: post.Content.substring(0, 150) + "...",
-        tags: ["Backend", "API"],
-        publishedAt: new Date().toISOString().split("T")[0],
-        readTime: this.calculateReadTime(post.Content),
+        excerpt: generateExcerpt(post.Content),
+        tags: generateDefaultTags(),
+        publishedAt: getCurrentDateString(),
+        readTime: calculateReadTime(post.Content),
       }));
 
       return frontendPosts;
@@ -49,10 +55,10 @@ export class PostService {
         title: backendPost.Title,
         content: backendPost.Content,
         author: backendPost.Author,
-        excerpt: backendPost.Content.substring(0, 150) + "...",
-        tags: ["Backend", "API"],
-        publishedAt: new Date().toISOString().split("T")[0],
-        readTime: this.calculateReadTime(backendPost.Content),
+        excerpt: generateExcerpt(backendPost.Content),
+        tags: generateDefaultTags(),
+        publishedAt: getCurrentDateString(),
+        readTime: calculateReadTime(backendPost.Content),
       };
 
       return frontendPost;
@@ -79,8 +85,8 @@ export class PostService {
         author: createdPost.Author,
         excerpt: postData.excerpt,
         tags: postData.tags,
-        publishedAt: new Date().toISOString().split("T")[0],
-        readTime: this.calculateReadTime(postData.content),
+        publishedAt: getCurrentDateString(),
+        readTime: calculateReadTime(postData.content),
       };
 
       return frontendPost;
@@ -107,13 +113,12 @@ export class PostService {
         title: updatedPost.Title,
         content: updatedPost.Content,
         author: updatedPost.Author,
-        excerpt:
-          postData.excerpt || updatedPost.Content.substring(0, 150) + "...",
-        tags: postData.tags || ["Backend", "API"],
-        publishedAt: new Date().toISOString().split("T")[0],
+        excerpt: postData.excerpt || generateExcerpt(updatedPost.Content),
+        tags: postData.tags || generateDefaultTags(),
+        publishedAt: getCurrentDateString(),
         readTime: postData.content
-          ? this.calculateReadTime(postData.content)
-          : this.calculateReadTime(updatedPost.Content),
+          ? calculateReadTime(postData.content)
+          : calculateReadTime(updatedPost.Content),
       };
 
       return frontendPost;
@@ -130,12 +135,5 @@ export class PostService {
       console.error(`Erro ao deletar post ${id}:`, error);
       throw new Error("Falha ao deletar post");
     }
-  }
-
-  static calculateReadTime(content: string): number {
-    const wordsPerMinute = 200;
-    const words = content.trim().split(/\s+/).length;
-    const readTime = Math.ceil(words / wordsPerMinute);
-    return readTime < 1 ? 1 : readTime;
   }
 }

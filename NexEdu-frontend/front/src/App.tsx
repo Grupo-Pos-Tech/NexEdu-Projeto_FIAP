@@ -40,7 +40,7 @@ function App() {
 
             <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/create" element={<CreatePostPage />} />
-            <Route path="/posts/edit/:id" element={<EditPostPage />} />
+            <Route path="/posts/:id/edit" element={<EditPostPage />} />
 
             <Route path="/task-list" element={<TaskList />} />
           </Routes>

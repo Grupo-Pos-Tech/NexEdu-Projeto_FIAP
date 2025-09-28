@@ -6,6 +6,7 @@ import {
   type CreatePostData,
   type UpdatePostData,
 } from "../services/postService";
+import { calculateReadTime, getCurrentDateString } from "../utils/postUtils";
 
 export const usePosts = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -49,7 +50,7 @@ export const usePosts = () => {
       const newPost: Post = {
         id: Math.max(...posts.map((p) => p.id), 0) + 1,
         ...postData,
-        publishedAt: new Date().toISOString().split("T")[0],
+        publishedAt: getCurrentDateString(),
         readTime: calculateReadTime(postData.content),
       };
 
@@ -105,13 +106,6 @@ export const usePosts = () => {
 
       setPosts((prev) => prev.filter((post) => post.id !== id));
     }
-  };
-
-  const calculateReadTime = (content: string): number => {
-    const wordsPerMinute = 200;
-    const words = content.trim().split(/\s+/).length;
-    const readTime = Math.ceil(words / wordsPerMinute);
-    return readTime < 1 ? 1 : readTime;
   };
 
   useEffect(() => {

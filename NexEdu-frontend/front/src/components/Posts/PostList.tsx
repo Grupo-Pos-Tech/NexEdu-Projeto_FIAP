@@ -60,7 +60,7 @@ const PostList: React.FC<PostListProps> = ({ posts }) => {
           </p>
         </div>
         <div className="ml-4">
-          <Button onClick={() => navigate("/posts/new")}>Novo Post</Button>
+          <Button onClick={() => navigate("/posts/create")}>Novo Post</Button>
         </div>
       </div>
 
