@@ -42,7 +42,10 @@ function App() {
             <Route path="/posts/create" element={<CreatePostPage />} />
             <Route path="/posts/:id/edit" element={<EditPostPage />} />
 
-            <Route path="/task-list" element={<TaskList />} />
+            <Route
+              path="/task-list"
+              element={<TaskList tasks={tasks} onRemoveTask={removeTask} />}
+            />
           </Routes>
         </MainContent>
         <Footer />
