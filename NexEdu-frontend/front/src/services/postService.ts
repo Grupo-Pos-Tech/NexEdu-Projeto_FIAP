@@ -28,7 +28,6 @@ export interface UpdatePostData {
   excerpt?: string;
   author?: string;
   tags?: string[];
-  readTime?: number;
 }
 
 export class PostService {
