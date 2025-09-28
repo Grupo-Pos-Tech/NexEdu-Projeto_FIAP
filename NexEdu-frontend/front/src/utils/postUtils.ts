@@ -5,9 +5,6 @@ export const calculateReadTime = (content: string): number => {
   return readTime < 1 ? 1 : readTime;
 };
 
-export const generateDefaultTags = (): string[] => {
-  return ["Backend", "API"];
-};
 
 export const getCurrentDateString = (): string => {
   return new Date().toISOString().split("T")[0];
