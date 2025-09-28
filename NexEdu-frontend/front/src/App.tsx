@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
-import MainContent from './components/Main/MainContent';
-import AddTask from './pages/AddTask/AddTask';
-import TaskList from './pages/TaskList/TaskList';
-import PostListPage from './pages/Posts/PostListPage';
-import PostPage from './pages/Posts/PostPage';
-import { mockPosts } from './components/data/mockPosts';
-import './App.css';
+import { useState } from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import "./App.css";
+import Footer from "./components/Footer/Footer";
+import Header from "./components/Header/Header";
+import MainContent from "./components/Main/MainContent";
+import CreatePostPage from "./pages/Posts/CreatePostPage";
+import EditPostPage from "./pages/Posts/EditPostPage";
+import PostListPage from "./pages/Posts/PostListPage";
+import TaskList from "./pages/TaskList/TaskList";
 
 interface Task {
   id: number;
@@ -23,7 +27,7 @@ function App() {
   };
 
   const removeTask = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
   return (
@@ -32,21 +36,13 @@ function App() {
         <Header />
         <MainContent>
           <Routes>
-            {/* Rota padrão - redireciona para posts */}
             <Route path="/" element={<Navigate to="/posts" replace />} />
-            
-            {/* Rotas dos posts */}
+
             <Route path="/posts" element={<PostListPage />} />
-            <Route path="/posts/:id" element={<PostPage posts={mockPosts} />} />
-            
-            {/* Rotas existentes das tarefas */}
-            <Route path="/tasks" element={
-              <>
-                <h1>Conteúdos</h1>
-                <AddTask onAddTask={addTask} />
-                <TaskList tasks={tasks} onRemoveTask={removeTask} />
-              </>
-            } />
+            <Route path="/posts/create" element={<CreatePostPage />} />
+            <Route path="/posts/edit/:id" element={<EditPostPage />} />
+
+            <Route path="/task-list" element={<TaskList />} />
           </Routes>
         </MainContent>
         <Footer />
