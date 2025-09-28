@@ -17,5 +17,7 @@ export const generateExcerpt = (
   content: string,
   maxLength: number = 150
 ): string => {
-  return content.substring(0, maxLength) + "...";
+  return content.length > maxLength
+    ? content.substring(0, maxLength) + "..."
+    : content;
 };
