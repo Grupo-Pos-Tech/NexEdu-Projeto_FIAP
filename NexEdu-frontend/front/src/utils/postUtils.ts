@@ -21,3 +21,21 @@ export const generateExcerpt = (
     ? content.substring(0, maxLength) + "..."
     : content;
 };
+
+export const generateMarkdownExcerpt = (
+  content: string,
+  maxLength: number = 150
+): string => {
+  const plainText = content
+    .replace(/#{1,6}\s+/g, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`(.*?)`/g, "$1")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\n+/g, " ")
+    .trim();
+
+  return plainText.length > maxLength
+    ? plainText.substring(0, maxLength) + "..."
+    : plainText;
+};

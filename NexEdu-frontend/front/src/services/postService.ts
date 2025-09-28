@@ -7,6 +7,13 @@ import {
 } from "../utils/postUtils";
 import { apiService } from "./api";
 
+interface BackendPost {
+  id: number;
+  Title: string;
+  Content: string;
+  Author: string;
+}
+
 export interface CreatePostData {
   title: string;
   content: string;
@@ -27,7 +34,7 @@ export interface UpdatePostData {
 export class PostService {
   static async getAllPosts(): Promise<Post[]> {
     try {
-      const backendPosts = await apiService.get<any[]>("/posts");
+      const backendPosts = await apiService.get<BackendPost[]>("/posts");
 
       const frontendPosts: Post[] = backendPosts.map((post) => ({
         id: post.id,
@@ -48,7 +55,7 @@ export class PostService {
   }
   static async getPostById(id: number): Promise<Post> {
     try {
-      const backendPost = await apiService.get<any>(`/posts/${id}`);
+      const backendPost = await apiService.get<BackendPost>(`/posts/${id}`);
 
       const frontendPost: Post = {
         id: backendPost.id,
@@ -76,7 +83,10 @@ export class PostService {
         Author: postData.author,
       };
 
-      const createdPost = await apiService.post<any>("/posts", backendData);
+      const createdPost = await apiService.post<BackendPost>(
+        "/posts",
+        backendData
+      );
 
       const frontendPost: Post = {
         id: createdPost.id,
@@ -97,13 +107,13 @@ export class PostService {
   }
   static async updatePost(id: number, postData: UpdatePostData): Promise<Post> {
     try {
-      const backendData: any = {};
+      const backendData: Partial<BackendPost> = {};
 
       if (postData.title) backendData.Title = postData.title;
       if (postData.content) backendData.Content = postData.content;
       if (postData.author) backendData.Author = postData.author;
 
-      const updatedPost = await apiService.put<any>(
+      const updatedPost = await apiService.put<BackendPost>(
         `/posts/${id}`,
         backendData
       );

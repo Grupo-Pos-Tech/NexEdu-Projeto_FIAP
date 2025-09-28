@@ -13,6 +13,7 @@ import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { usePosts } from "../../hooks/usePosts";
 import type { UpdatePostData } from "../../services/postService";
+import { generateMarkdownExcerpt } from "../../utils/postUtils";
 
 const EditPostPage: React.FC = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const EditPostPage: React.FC = () => {
     };
 
     loadPost();
-  }, [id]);
+  }, [id, getPostById]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -101,19 +102,7 @@ const EditPostPage: React.FC = () => {
 
   const generateExcerpt = () => {
     if (formData.content) {
-      const plainText = formData.content
-        .replace(/#{1,6}\s+/g, "")
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .replace(/\*(.*?)\*/g, "$1")
-        .replace(/`(.*?)`/g, "$1")
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/\n+/g, " ")
-        .trim();
-
-      const excerpt =
-        plainText.length > 150
-          ? plainText.substring(0, 150) + "..."
-          : plainText;
+      const excerpt = generateMarkdownExcerpt(formData.content);
 
       setFormData((prev) => ({
         ...prev,
