@@ -1,77 +1,45 @@
-# NexEdu A### Como Usar
+# NexEdu Backend
 
-```bash
-# Build Docker automático no push para main
-git push origin main
-
-# Deploy de desenvolvimento
-git push origin develop
-
-# Release com versioning
-git tag v1.0.0 && git push origin v1.0.0
-```
-
-> 🐳 **Docker-first!** Tudo é testado e empacotado em containers para máxima portabilidade.
-
-**📖 Documentação completa**: [GitHub Actions Guide](.github/ACTIONS.md)  
-**⚡ Configuração rápida**: [Setup Guide](.github/SETUP.md)  
-**🐳 Deploy com Docker**: [Docker Deployment Guide](DOCKER-DEPLOY.md)ara gerenciamento de posts educacionais.
+API RESTful para gerenciamento de posts educacionais com sistema de autenticação e autorização baseado em roles (Professor/Aluno).
 
 ## Tecnologias
 
 - Node.js + TypeScript
 - Express.js
 - Prisma ORM
+- PostgreSQL
+- JWT (JSON Web Token)
+- bcrypt
+- Docker & Docker Compose
 
-### Como Funciona
+## Funcionalidades
 
-```bash
-# Dispara testes + build + push para Docker Hub
-git push origin main
+### Autenticação e Autorização
+- Registro de usuários (Professor e Aluno)
+- Login com geração de token JWT
+- Middleware de autenticação
+- Controle de acesso baseado em roles
 
-# Dispara apenas testes (não faz push)
-git push origin develop
+### Gerenciamento de Usuários (Apenas Professores)
+- Listar todos os usuários
+- Buscar usuário por ID
+- Atualizar informações de usuário
+- Deletar usuário
 
-# Cria release automático com changelog e assets
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-### Criando Releases
-
-Para criar uma nova release:
-
-```bash
-# 1. Faça suas mudanças e commits
-git add .
-git commit -m "feat: nova funcionalidade"
-
-# 2. Crie e push a tag
-git tag v1.2.0
-git push origin v1.2.0
-
-# 3. O workflow automaticamente:
-#    - Gera changelog dos commits
-#    - Cria release no GitHub
-#    - Anexa arquivos de deploy
-#    - Documenta como usar a versão
-```
-
-> 💡 **Focado em qualidade!** O CI/CD valida código, roda testes e prepara builds sem deploy automático.
-
-**📖 Documentação completa**: [GitHub Actions Guide](.github/ACTIONS.md)  
-**⚡ Configuração rápida**: [Setup Guide](.github/SETUP.md)cker & Docker Compose
+### Gerenciamento de Posts
+- Leitura de posts (Professores e Alunos autenticados)
+- Criação, edição e exclusão de posts (Apenas Professores)
+- Busca de posts por termo
+- Relacionamento entre posts e autores
 
 ## Como usar
 
-### 🐳 Opção 1: Usando Docker (Recomendado)
-
-A forma mais fácil de executar o projeto é usando Docker:
+### Opção 1: Usando Docker (Recomendado)
 
 ```bash
 # Clone o repositório
-git clone https://github.com/Rafacolacio/NexEdu.git
-cd NexEdu
+git clone https://github.com/Grupo-Pos-Tech/NexEdu-Projeto_FIAP.git
+cd NexEdu-Projeto_FIAP/NexEdu-backend
 
 # Copie o arquivo de ambiente
 cp .env.example .env
@@ -85,7 +53,7 @@ docker-compose logs -f api
 
 A API estará disponível em `http://localhost:3000` e o PostgreSQL na porta `5433`.
 
-#### Comandos Docker úteis:
+#### Comandos Docker úteis
 
 ```bash
 # Parar todos os serviços
@@ -105,20 +73,25 @@ docker-compose logs -f postgres
 docker exec -it nexedu-api sh
 ```
 
-### 💻 Opção 2: Executar Localmente
+### Opção 2: Executar Localmente
 
 ```bash
 # Instalar dependências
 npm install
 
-# Configurar banco (.env)
-DATABASE_URL="postgresql://user:pass@localhost:5432/nexedu"
+# Configurar banco de dados (.env)
+DATABASE_URL="postgresql://nexedu:nexedu123@localhost:5433/nexedu_db"
+JWT_SECRET="nexedu-secret-key-change-in-production"
 
 # Executar migrações
 npx prisma migrate dev
 
-# Iniciar servidor
+# Iniciar servidor em desenvolvimento
 npm run dev
+
+# Build para produção
+npm run build
+npm start
 ```
 
 ## Configuração
@@ -134,6 +107,9 @@ DATABASE_URL="postgresql://nexedu:nexedu123@localhost:5433/nexedu_db"
 # Configuração da API
 PORT=3000
 NODE_ENV=development
+
+# JWT Secret para autenticação
+JWT_SECRET="nexedu-secret-key-change-in-production"
 ```
 
 ### Acessos (Docker)
@@ -145,159 +121,208 @@ NODE_ENV=development
   - **Senha**: nexedu123
   - **Database**: nexedu_db
 
-## Endpoints
+## Endpoints da API
+
+### Públicos (sem autenticação)
 
 ```
-GET    /              # Teste da API
-GET    /posts         # Listar posts
-GET    /posts/:id     # Buscar por ID
-GET    /posts/search?q=termo  # Buscar por termo
-POST   /posts         # Criar post
-PUT    /posts/:id     # Atualizar post
-DELETE /posts/:id     # Deletar post
+POST   /auth/register      # Registrar novo usuário
+POST   /auth/login         # Fazer login e obter token JWT
 ```
 
-## Modelo de Dados
+### Leitura (requer autenticação - Professores e Alunos)
+
+```
+GET    /posts              # Listar todos os posts
+GET    /posts/:id          # Buscar post por ID
+GET    /posts/search?q=    # Buscar posts por termo
+```
+
+### Apenas Professores (requer autenticação + role PROFESSOR)
+
+```
+# Gerenciamento de Usuários
+GET    /users              # Listar todos os usuários
+GET    /users/:id          # Buscar usuário por ID
+PUT    /users/:id          # Atualizar usuário
+DELETE /users/:id          # Deletar usuário
+
+# Gerenciamento de Posts
+POST   /posts              # Criar novo post
+PUT    /posts/:id          # Atualizar post
+DELETE /posts/:id          # Deletar post
+```
+
+## Modelos de Dados
+
+### User
 
 ```json
 {
   "id": 1,
-  "Title": "Título do post",
-  "Content": "Conteúdo do post",
-  "Author": "Nome do autor"
+  "name": "Prof. João Silva",
+  "login": "joao.professor",
+  "role": "PROFESSOR",
+  "createdAt": "2025-10-05T20:00:00.000Z",
+  "updatedAt": "2025-10-05T20:00:00.000Z"
 }
 ```
 
-## 🔄 CI/CD com GitHub Actions
+### Post
 
-Este projeto utiliza **Semantic Release** com **Conventional Commits** para automação completa com Docker.
+```json
+{
+  "id": 1,
+  "Title": "Autenticação com JWT",
+  "Content": "JSON Web Token é um padrão aberto...",
+  "Author": "Prof. João Silva",
+  "authorId": 1,
+  "author": {
+    "id": 1,
+    "name": "Prof. João Silva",
+    "login": "joao.professor",
+    "role": "PROFESSOR"
+  },
+  "createdAt": "2025-10-05T20:00:00.000Z",
+  "updatedAt": "2025-10-05T20:00:00.000Z"
+}
+```
+
+### Login Response
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "Prof. João Silva",
+    "login": "joao.professor",
+    "role": "PROFESSOR"
+  }
+}
+```
+
+## Testes
+
+Use o arquivo `test-requests.http` com a extensão REST Client do VS Code.
+
+### Como testar
+
+1. Instale a extensão REST Client no VS Code
+2. Inicie o servidor com `npm run dev` ou `docker-compose up`
+3. Execute as requisições de login (8 e 9) e copie os tokens retornados
+4. Cole os tokens nas variáveis `@tokenProfessor` e `@tokenAluno` no arquivo
+5. Execute as demais requisições clicando em "Send Request"
+
+O arquivo contém 37 casos de teste cobrindo:
+- Autenticação e registro
+- CRUD completo de usuários
+- CRUD completo de posts
+- Testes de autorização (403 Forbidden)
+- Testes de autenticação (401 Unauthorized)
+- Testes de validação (400 Bad Request, 404 Not Found)
+
+## Estrutura do Projeto
+
+```
+NexEdu-backend/
+├── prisma/
+│   ├── migrations/         # Migrações do banco de dados
+│   └── schema.prisma       # Schema do Prisma
+├── src/
+│   ├── middleware/
+│   │   └── auth.ts         # Middlewares de autenticação e autorização
+│   └── index.ts            # Servidor Express e rotas
+├── dist/                   # Build TypeScript (gerado)
+├── .env                    # Variáveis de ambiente (não versionado)
+├── .env.example            # Exemplo de variáveis de ambiente
+├── docker-compose.yml      # Configuração Docker
+├── Dockerfile              # Imagem Docker de produção
+├── Dockerfile.dev          # Imagem Docker de desenvolvimento
+├── package.json            # Dependências e scripts
+├── tsconfig.json           # Configuração TypeScript
+├── test-requests.http      # Testes de API
+└── README.md               # Este arquivo
+```
+
+## CI/CD com GitHub Actions
+
+Este projeto utiliza Semantic Release com Conventional Commits para automação completa.
 
 ### Workflows Configurados
 
-**🐳 Docker Build and Push** (`main.yml`):
-
+**Docker Build and Push** (`main.yml`):
 - **Triggers**: Push para `main`/`develop`, tags `v*`, pull requests
 - **Test Phase**: Testes automatizados com Docker + PostgreSQL
 - **Build Phase**: Build multi-arquitetura (linux/amd64, linux/arm64)
 - **Push Phase**: Upload automático para Docker Hub
 - **Semantic Release**: Gera releases automaticamente baseado em conventional commits
 
-### Status dos Pipelines
+### Conventional Commits
 
-![Docker Build and Push](https://github.com/jessicaMarquess/NexEdu/workflows/Docker%20Build%20and%20Push/badge.svg)
+#### Tipos de commit
 
-## � Conventional Commits & Semantic Release
-
-### 🎯 Como funciona
-
-- **Push para `main`** → Analisa commits → **Gera release automaticamente** se houver mudanças significativas
-- **Sem commits convencionais** → Não gera release
-- **Com commits convencionais** → Gera tag, changelog e release
-
-### 📋 Tipos de commit
-
-#### 🐛 **Patch Version** (v1.0.0 → v1.0.1)
-
+**Patch Version** (v1.0.0 → v1.0.1):
 ```bash
 fix: corrigir bug na validação de dados
 fix(api): resolver erro 500 no endpoint de posts
-fix(database): corrigir migração duplicada
 ```
 
-#### ✨ **Minor Version** (v1.0.0 → v1.1.0)
-
+**Minor Version** (v1.0.0 → v1.1.0):
 ```bash
 feat: adicionar endpoint de busca de posts
-feat(auth): implementar login com Google
-feat(api): adicionar filtros de data nos posts
+feat(auth): implementar login com JWT
 ```
 
-#### 💥 **Major Version** (v1.0.0 → v2.0.0)
-
+**Major Version** (v1.0.0 → v2.0.0):
 ```bash
 feat!: alterar estrutura da API de posts
-feat(api)!: remover endpoint deprecated /old-posts
 fix!: alterar formato de resposta da API
-
-# Ou usando BREAKING CHANGE no footer
-feat(api): adicionar novo sistema de autenticação
-
-BREAKING CHANGE: O endpoint /auth agora requer header Authorization
 ```
 
-#### 📚 **Não geram release**
-
+**Não geram release**:
 ```bash
-docs: atualizar README com novas instruções
-style: formatar código com prettier
-refactor: reorganizar estrutura de pastas
+docs: atualizar README
+style: formatar código
+refactor: reorganizar estrutura
 test: adicionar testes unitários
 chore: atualizar dependências
-ci: melhorar workflow do GitHub Actions
+ci: melhorar workflow
 ```
 
-### 🏗️ **Estrutura do commit**
+## Segurança
 
-```
-<tipo>(<escopo>)!: <descrição>
+- Senhas criptografadas com bcrypt (10 rounds)
+- Autenticação JWT com tokens válidos por 24 horas
+- Validação de roles em todos os endpoints protegidos
+- Validação de dados de entrada
+- Headers de segurança configurados no Express
 
-<corpo do commit (opcional)>
-
-<footer (opcional)>
-```
-
-### ✅ **Exemplos práticos**
-
-**Cenário: Corrigir bug + Adicionar feature**
+## Desenvolvimento
 
 ```bash
-# Commit 1
-fix: corrigir validação de email no cadastro
+# Instalar dependências
+npm install
 
-# Commit 2
-feat: adicionar endpoint para upload de avatar
+# Modo desenvolvimento com hot reload
+npm run dev
 
-# Push para main → Gera v1.1.0 (minor - por causa do feat)
+# Build para produção
+npm run build
+
+# Executar em produção
+npm start
+
+# Gerar Prisma Client
+npx prisma generate
+
+# Criar nova migration
+npx prisma migrate dev --name nome_da_migration
+
+# Visualizar banco de dados
+npx prisma studio
 ```
-
-**Cenário: Breaking change**
-
-```bash
-feat!: alterar formato de resposta da API
-
-BREAKING CHANGE: Todos os endpoints agora retornam data no formato ISO
-
-# Push para main → Gera v2.0.0 (major - por causa do !)
-```
-
-**Cenário: Apenas docs**
-
-```bash
-docs: melhorar documentação da API
-chore: atualizar dependências
-
-# Push para main → NÃO gera release (apenas docs/chore)
-```
-
-### 📦 **Fluxo completo**
-
-1. **Desenvolva** normalmente
-2. **Faça commits** seguindo conventional commits
-3. **Push para main** → Workflow analisa commits automaticamente
-4. **Se houver mudanças significativas** → Cria tag + release automaticamente
-5. **Release inclui** changelog, Docker images, arquivos de deploy
-
-### 🎯 **Dicas para bons commits**
-
-- **Use o presente**: "adicionar" não "adicionado"
-- **Seja específico**: "corrigir validação de email" não "corrigir bug"
-- **Use escopos**: `feat(auth):`, `fix(api):`, `docs(readme):`
-- **Breaking changes** sempre usar `!` ou `BREAKING CHANGE`
-
-## Testes
-
-Use o arquivo `test-requests.http` com a extensão REST Client do VS Code.
 
 ---
 
-Desenvolvido pela Equipe NexEdu
+Desenvolvido pela Equipe NexEdu - Pós Tech FIAP
