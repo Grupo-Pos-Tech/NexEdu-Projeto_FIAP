@@ -19,6 +19,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import express, { Request, Response } from "express";
+import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authenticate, requireProfessor, AuthRequest } from "./middleware/auth";
@@ -26,6 +27,12 @@ import { authenticate, requireProfessor, AuthRequest } from "./middleware/auth";
 // Inicialização do Express e Prisma
 const app = express();
 const prisma = new PrismaClient();
+
+// Configuração de CORS
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 // Middleware para parsing de JSON nas requisições
 app.use(express.json());
