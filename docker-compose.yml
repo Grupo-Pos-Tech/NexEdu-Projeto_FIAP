@@ -106,6 +106,44 @@ services:
     profiles:
       - production
 
+  # Frontend Next.js com shadcn/ui - Desenvolvimento
+  frontend-shadcnui:
+    build:
+      context: ./NexEdu-frontend-shadcnui
+      dockerfile: Dockerfile.dev
+    container_name: nexedu-frontend-shadcnui
+    restart: unless-stopped
+    ports:
+      - "2025:2025"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./NexEdu-frontend-shadcnui:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+
+  # Frontend Next.js com shadcn/ui - Produção
+  frontend-shadcnui-prod:
+    build:
+      context: ./NexEdu-frontend-shadcnui
+      dockerfile: Dockerfile
+    container_name: nexedu-frontend-shadcnui-prod
+    restart: unless-stopped
+    ports:
+      - "2026:2025"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+    profiles:
+      - production
+
 volumes:
   postgres_data:
 
