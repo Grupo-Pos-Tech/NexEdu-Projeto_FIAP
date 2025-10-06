@@ -23,7 +23,7 @@ services:
   # API NexEdu
   api:
     build:
-      context: .
+      context: ./NexEdu-backend
       dockerfile: Dockerfile
     container_name: nexedu-api
     restart: unless-stopped
@@ -40,10 +40,10 @@ services:
       - nexedu-network
     command: sh -c "npx prisma migrate deploy && npm start"
 
-  # Dockerfile para desenvolvimento (opcional)
+  # API NexEdu - Desenvolvimento
   api-dev:
     build:
-      context: .
+      context: ./NexEdu-backend
       dockerfile: Dockerfile.dev
     container_name: nexedu-api-dev
     restart: unless-stopped
@@ -59,11 +59,52 @@ services:
     networks:
       - nexedu-network
     volumes:
-      - .:/app
+      - ./NexEdu-backend:/app
       - /app/node_modules
     command: sh -c "npx prisma migrate deploy && npm run dev"
     profiles:
       - dev
+
+  # Frontend React - Desenvolvimento
+  frontend:
+    build:
+      context: ./NexEdu-frontend/front
+      dockerfile: Dockerfile
+      target: dev
+    container_name: nexedu-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./NexEdu-frontend/front:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://localhost:3000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+
+  # Frontend React - Produção
+  frontend-prod:
+    build:
+      context: ./NexEdu-frontend/front
+      dockerfile: Dockerfile
+      target: production
+    container_name: nexedu-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+    profiles:
+      - production
 
 volumes:
   postgres_data:
