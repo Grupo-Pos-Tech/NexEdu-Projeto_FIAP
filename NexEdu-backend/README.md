@@ -1,4 +1,4 @@
-# NexEdu Backend
+# NexEdu Backend.
 
 API RESTful para gerenciamento de posts educacionais com sistema de autenticação e autorização baseado em roles (Professor/Aluno).
 
