@@ -1,25 +1,4 @@
 services:
-  # Banco de dados PostgreSQL
-  postgres:
-    image: postgres:15-alpine
-    container_name: nexedu-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: nexedu
-      POSTGRES_PASSWORD: nexedu123
-      POSTGRES_DB: nexedu_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - nexedu-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nexedu"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # API NexEdu
   api:
     build:
@@ -28,14 +7,11 @@ services:
     container_name: nexedu-api
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      DATABASE_URL: "postgresql://neondb_owner:npg_b6EBpk7COhtS@ep-twilight-voice-a8ald5bp-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
       NODE_ENV: production
       PORT: 3000
     ports:
       - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - nexedu-network
     command: sh -c "npx prisma migrate deploy && npm start"
@@ -48,14 +24,11 @@ services:
     container_name: nexedu-api-dev
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      DATABASE_URL: "postgresql://neondb_owner:npg_b6EBpk7COhtS@ep-twilight-voice-a8ald5bp-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
       NODE_ENV: development
       PORT: 3000
     ports:
       - "3001:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - nexedu-network
     volumes:
@@ -102,9 +75,6 @@ services:
       - nexedu-network
     profiles:
       - production
-
-volumes:
-  postgres_data:
 
 networks:
   nexedu-network:

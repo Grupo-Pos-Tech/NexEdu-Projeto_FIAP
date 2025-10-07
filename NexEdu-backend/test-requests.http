@@ -25,8 +25,8 @@
 
 # Tokens JWT - Cole aqui os tokens obtidos nas requisições de login (8 e 9)
 # Substitua "SEU_TOKEN_AQUI" pelos tokens reais retornados pelo endpoint /auth/login
-@tokenProfessor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibG9naW4iOiJqb2FvLnByb2Zlc3NvciIsInJvbGUiOiJQUk9GRVNTT1IiLCJpYXQiOjE3NTk3MTQ3NDEsImV4cCI6MTc1OTgwMTE0MX0.atapP35D4_4Bbh0p4LSHAgCWWH_RxpHH7zxyVGXzWVc
-@tokenAluno = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibG9naW4iOiJtYXJpYS5hbHVuYSIsInJvbGUiOiJBTFVOTyIsImlhdCI6MTc1OTcxNDc2MSwiZXhwIjoxNzU5ODAxMTYxfQ.N6eMS3U1qhjGN6uz-UI4akyHKeli3gsGJidx3cHoYZ8
+@tokenProfessor = SEU_TOKEN_AQUI
+@tokenAluno = SEU_TOKEN_AQUI
 
 # ============================================================================
 # TESTE BÁSICO
