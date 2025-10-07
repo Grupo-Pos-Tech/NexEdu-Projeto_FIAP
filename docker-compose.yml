@@ -65,53 +65,12 @@ services:
     profiles:
       - dev
 
-  # Frontend React - Desenvolvimento
-  frontend:
-    build:
-      context: ./NexEdu-frontend/front
-      dockerfile: Dockerfile
-      target: dev
-    container_name: nexedu-frontend
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./NexEdu-frontend/front:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_API_URL=http://localhost:3000
-    stdin_open: true
-    tty: true
-    depends_on:
-      - api
-    networks:
-      - nexedu-network
-
-  # Frontend React - Produção
-  frontend-prod:
-    build:
-      context: ./NexEdu-frontend/front
-      dockerfile: Dockerfile
-      target: production
-    container_name: nexedu-frontend-prod
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-    networks:
-      - nexedu-network
-    profiles:
-      - production
-
   # Frontend Next.js com shadcn/ui - Desenvolvimento
-  frontend-shadcnui:
+  frontend:
     build:
       context: ./NexEdu-frontend-shadcnui
       dockerfile: Dockerfile.dev
-    container_name: nexedu-frontend-shadcnui
+    container_name: nexedu-frontend
     restart: unless-stopped
     ports:
       - "2025:2025"
@@ -127,11 +86,11 @@ services:
       - nexedu-network
 
   # Frontend Next.js com shadcn/ui - Produção
-  frontend-shadcnui-prod:
+  frontend-prod:
     build:
       context: ./NexEdu-frontend-shadcnui
       dockerfile: Dockerfile
-    container_name: nexedu-frontend-shadcnui-prod
+    container_name: nexedu-frontend-prod
     restart: unless-stopped
     ports:
       - "2026:2025"
