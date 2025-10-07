@@ -1,0 +1,111 @@
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexedu-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexedu
+      POSTGRES_PASSWORD: nexedu123
+      POSTGRES_DB: nexedu_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexedu-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexedu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API NexEdu
+  api:
+    build:
+      context: ./NexEdu-backend
+      dockerfile: Dockerfile
+    container_name: nexedu-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexedu-network
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  # API NexEdu - Desenvolvimento
+  api-dev:
+    build:
+      context: ./NexEdu-backend
+      dockerfile: Dockerfile.dev
+    container_name: nexedu-api-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://nexedu:nexedu123@postgres:5432/nexedu_db"
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexedu-network
+    volumes:
+      - ./NexEdu-backend:/app
+      - /app/node_modules
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    profiles:
+      - dev
+
+  # Frontend Next.js com shadcn/ui - Desenvolvimento
+  frontend:
+    build:
+      context: ./NexEdu-frontend-shadcnui
+      dockerfile: Dockerfile.dev
+    container_name: nexedu-frontend
+    restart: unless-stopped
+    ports:
+      - "2025:2025"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./NexEdu-frontend-shadcnui:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+
+  # Frontend Next.js com shadcn/ui - Produção
+  frontend-prod:
+    build:
+      context: ./NexEdu-frontend-shadcnui
+      dockerfile: Dockerfile
+    container_name: nexedu-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "2026:2025"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - api
+    networks:
+      - nexedu-network
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+
+networks:
+  nexedu-network:
+    driver: bridge
